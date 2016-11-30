@@ -5,28 +5,26 @@ require 'pry'
 
 def character_hash
   all_characters = RestClient.get("http://www.swapi.co/api/people/")
-  JSON.parse(all_characters)
+  hash = JSON.parse(all_characters)
 end
 # => entire hash
 # puts character_hash
 
 
 def get_character_movies_from_api(character)
-  character_hash["results"].each do |characters|
-    if characters["name"] == character
-      characters["films"]
+  chosen_one = character_hash["results"].find do |characters|
+     characters["name"] == character
     end
     # => [urls]
     #make the web request
-    films_info = [ ]
-      characters["films"].each do |films_url|
+
+    chosen_one["films"].collect do |films_url|
       all_films = RestClient.get(films_url)
-      films_info << JSON.parse(all_films)
+       JSON.parse(all_films)
     end
     # return films_info.is_a?(Array) # true
-    return films_info
   end
-end
+
 
 
 # p get_character_movies_from_api("R2-D2")
@@ -48,7 +46,7 @@ def parse_character_movies(character)
 
 end
 
-p parse_character_movies("")
+parse_character_movies("Luke Skywalker")
 
 
 # .each do |key, value|
