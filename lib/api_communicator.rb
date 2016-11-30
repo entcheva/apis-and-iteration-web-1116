@@ -2,25 +2,71 @@ require 'rest-client'
 require 'json'
 require 'pry'
 
+
+def character_hash
+  all_characters = RestClient.get("http://www.swapi.co/api/people/")
+  JSON.parse(all_characters)
+end
+# => entire hash
+# puts character_hash
+
+
 def get_character_movies_from_api(character)
-  #make the web request
-  all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  character_hash = JSON.parse(all_characters)
-  
-  # iterate over the character hash to find the collection of `films` for the given
-  #   `character`
-  # collect those film API urls, make a web request to each URL to get the info
-  #  for that film
-  # return value of this method should be collection of info about each film.
-  #  i.e. an array of hashes in which each hash reps a given film
-  # this collection will be the argument given to `parse_character_movies`
-  #  and that method will do some nice presentation stuff: puts out a list
-  #  of movies by title. play around with puts out other info about a given film.
+  character_hash["results"].each do |characters|
+    if characters["name"] == character
+      characters["films"]
+    end
+    # => [urls]
+    #make the web request
+    films_info = [ ]
+      characters["films"].each do |films_url|
+      all_films = RestClient.get(films_url)
+      films_info << JSON.parse(all_films)
+    end
+    # return films_info.is_a?(Array) # true
+    return films_info
+  end
 end
 
-def parse_character_movies(films_hash)
+
+# p get_character_movies_from_api("R2-D2")
+#MAKE WEB request
+
+
+
+
+
+
+def parse_character_movies(character)
   # some iteration magic and puts out the movies in a nice list
+
+  film_info = get_character_movies_from_api(character).collect do |key, value| #each movie
+    "Movie title:#{key["title"]} Producer(s): #{key["producer"]} Episode No.:#{key["episode_id"]}"
+  end
+
+   puts film_info[0...film_info.size]
+
 end
+
+p parse_character_movies("")
+
+
+# .each do |key, value|
+#
+#      puts ["title"][value]
+#       puts["episode_id"][value]
+#       puts ["director"][value]
+#       binding.pry
+# end
+
+
+
+
+
+
+# def parse_character_movies(films_hash)
+#   # some iteration magic and puts out the movies in a nice list
+# end
 
 def show_character_movies(character)
   films_hash = get_character_movies_from_api(character)
